@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="empresa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Empresas</title>
+    <link rel="stylesheet" href="css/empresas.css">
+</head>
+<body>
+    <a href="contactos.html">Contactos</a>
+    <h1>EMPRESAS</h1>
+    <div>
+      <div class="">
+        <table id="companies">
+          <thead>
+            <tr>
+              <th>id</th>
+              <th>Nombre</th>
+              <th>Industria</th>
+              <th>Sector</th>
+              <th>Capital</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+
+      </div>
+      <p></p>
+      <div class="">
+        <form action="" name="form_create">
+          <fieldset>
+            <legend>Nueva empresa</legend>
+            <p>
+              <label for="name">Nombre</label>
+              <input type="text" id="name" name="name">
+            </p>
+            <p>
+              <label for="industry">Industria</label>
+              <input type="text" id="industry" name="industry">
+            </p>
+            <p>
+              <label for="sector">Sector</label>
+              <input type="text" id="sector" name="sector">
+            </p>
+            <p>
+              <label for="capital">Capital</label>
+              <input type="number" id="capital" name="capital" step='0.01'>
+            </p>
+            <p>
+              <input type="submit" value="Crear empresa" onclick="createCompany()">
+            </p>
+          </fieldset>
+
+        </form>
+      </div>
+    </div>
+
+    <script>
+      
+
+    
+    //Listado de empresas
+    async function fetchCompanies() {
+    try {
+      let companies = document.getElementById("companies");
+        let url = "api/companies";
+       
+        var requestOptions = {
+            method: 'GET',
+            redirect: 'follow'
+            };
+    
+        let response = await fetch(url, requestOptions);
+        let json = await response.json();
+
+        // Iterar sobre las empresas
+        json.forEach(company => {
+          let tr = document.createElement("tr");
+          let id = document.createElement("td");
+          let name = document.createElement("td");
+          let industry = document.createElement("td");
+          let sector = document.createElement("td");
+          let capital = document.createElement("td");
+
+          id.innerHTML = company.id;
+          name.innerHTML = company.name;
+          industry.innerHTML = company.industry;
+          sector.innerHTML = company.sector;
+          capital.innerHTML = company.capital;
+  
+          tr.id = company.id;
+          tr.append(id,name, industry,sector,capital);
+
+          tr.addEventListener("click" , () => { 
+                if (!tr.classList.contains("marcada")) {
+              tr.classList.add("marcada");
+            } else {
+            tr.classList.remove("marcada");
+          }});
+
+          companies.append(tr);
+
+        });
+
+
+    } catch (error) {
+        console.log('Error:', error);
+    }
+  }
+
+  //Insertar una empresa
+  async function createCompany() {
+try{
+    let url = "api/companies";
+       
+    let name = document.getElementById("name");
+
+      let industry = document.getElementById("industry");
+      let sector = document.getElementById("sector");
+      let capital = document.getElementById("capital");
+      let companyData = {
+      "name": name.value,
+      "industry": industry.value,
+      "sector": sector.value,
+      "capital": capital.value,
+    };
+  
+
+    var requestOptions = {
+      method: 'POST',
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(companyData),
+      redirect: 'follow'
+    };
+
+    const response = await fetch(url, requestOptions);
+
+    
+
+  } catch(error){
+
+  }
+} 
+
+//Intenté hacer la parte de marcar con una función externa, pero no consigo que funcione
+  function mark(tr){
+     console.log(tr.class);
+    if (!tr.classList.contains("marcada")) {
+    tr.classList.add("marcada");
+
+  } else {
+    tr.classList.remove("marcada");
+
+  }
+  }
+
+  fetchCompanies();
+    </script>
+</body>
+</html>
