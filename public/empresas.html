@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="css/empresas.css">
 </head>
 <body>
-    <a href="contactos.html">Contactos</a>
     <h1>EMPRESAS</h1>
+    <a href="contactos.html">Contactos</a>
     <div>
       <div class="">
         <table id="companies">
@@ -75,6 +75,12 @@
         let response = await fetch(url, requestOptions);
         let json = await response.json();
 
+          // Obtener IDs de empresas marcadas
+          let marcadaIds = JSON.parse(localStorage.getItem("marcadas")) || [];
+
+        // Limpiar tbody antes de agregar datos
+        companies.querySelector("tbody").innerHTML = "";
+
         // Iterar sobre las empresas
         json.forEach(company => {
           let tr = document.createElement("tr");
@@ -89,20 +95,23 @@
           industry.innerHTML = company.industry;
           sector.innerHTML = company.sector;
           capital.innerHTML = company.capital;
-  
+
           tr.id = company.id;
+
+          if (marcadaIds.includes(tr.id)) {
+            tr.classList.add("marcada");
+          }
+
           tr.append(id,name, industry,sector,capital);
 
-          tr.addEventListener("click" , () => { 
-                if (!tr.classList.contains("marcada")) {
-              tr.classList.add("marcada");
-            } else {
-            tr.classList.remove("marcada");
-          }});
 
-          companies.append(tr);
+          tr.addEventListener("click" , () => mark(tr));
+          
+          companies.querySelector("tbody").appendChild(tr);
+
 
         });
+
 
 
     } catch (error) {
@@ -144,17 +153,22 @@ try{
   }
 } 
 
-//Intenté hacer la parte de marcar con una función externa, pero no consigo que funcione
-  function mark(tr){
-     console.log(tr.class);
-    if (!tr.classList.contains("marcada")) {
-    tr.classList.add("marcada");
 
+function mark(tr) {
+  if (!tr.classList.contains("marcada")) {
+    tr.classList.add("marcada");
+    let marcadaIds = JSON.parse(localStorage.getItem("marcadas")) || [];
+    marcadaIds.push(tr.id);
+    localStorage.setItem("marcadas", JSON.stringify(marcadaIds));
   } else {
     tr.classList.remove("marcada");
+    let marcadaIds = JSON.parse(localStorage.getItem("marcadas")) || [];
+    marcadaIds = marcadaIds.filter(id => id !== tr.id);
+    localStorage.setItem("marcadas", JSON.stringify(marcadaIds));
+  }
 
-  }
-  }
+}
+
 
   fetchCompanies();
     </script>

@@ -9,58 +9,109 @@
 </head>
 <body>
     <h1>Contactos</h1>
+    <a href="empresas.html">Empresas</a>
     <div id="contacts"></div>
 
     <script>
-    
-    //Listado de contactos
-    async function fetchContacts() {
-    try {
-      let contacts = document.getElementById("contacts");
-        let url = "api/contacts";
-       
-        var requestOptions = {
-            method: 'GET',
-            redirect: 'follow'
-            };
-    
-        let response = await fetch(url, requestOptions);
-        let json = await response.json();
+        // Listado de contactos
+        async function fetchContacts() {
+             try {
+                let contacts = document.getElementById("contacts");
+                let url = "http://localhost:3000/api/contacts";
+               
+                var requestOptions = {
+                    method: 'GET',
+                    redirect: 'follow'
+                };
         
-        json.forEach(element => {
-            let div = document.createElement("div");
-            let comp_id = document.createElement("h3");
-            let departament = document.createElement("p");
-            let email = document.createElement("p");
-            let first_name = document.createElement("p");
-            let last_name = document.createElement("p");
-            let id = document.createElement("p");
-            let img = document.createElement("img");
+                let response = await fetch(url, requestOptions);
+                 let json = await response.json();
+                
+                 // Obtener IDs de empresas marcadas
+                let marcadaIds = JSON.parse(localStorage.getItem("marcadas")) || [];
 
 
-            comp_id.innerHTML = element.company_id;
-            departament.innerHTML = element.department;
-            email.innerHTML = element.email;
-            first_name.innerHTML = element.first_name;
-            last_name.innerHTML = element.last_name;
-            id.innerHTML = element.id;
-            // img.href = "img/" + element.image;
-            img.setAttribute("src" , "img/" + element.image);
+                for (const element of json) {
 
-            div.setAttribute("class" , "card");
-            div.append(img, comp_id, id , first_name , last_name ,departament,email);
-            contacts.append(div);
+                    let div = document.createElement("div");
+                    let comp_name = document.createElement("h3");
+                    let comp_id = document.createElement("h3");
+                    let departament = document.createElement("p");
+                    let email = document.createElement("p");
+                    let first_name = document.createElement("p");
+                    let last_name = document.createElement("p");
+                    let id = document.createElement("p");
+                    let img = document.createElement("img");
+                    let button = document.createElement("button");
+
+                    comp_id.innerText = element.company_id;
+
+                    if (marcadaIds.includes(comp_id.innerText)) {
+                    let companyName = await getCompanyName(element.company_id);
+
+                    comp_name.innerText = companyName;
+                    departament.innerHTML = element.department;
+                    email.innerHTML = element.email;
+                    first_name.innerHTML = element.first_name;
+                    last_name.innerHTML = element.last_name;
+                    id.innerHTML = element.id;
+                    img.setAttribute("src" , "img/" + element.image);
+                    button.innerHTML = "Eliminar";
+                    button.setAttribute("onclick" , "deleteContact(" + element.id + ")");
+        
+                    div.setAttribute("class" , "card");
+                    div.append(img, comp_name, id, first_name, last_name, departament, email, button);
+                    contacts.append(div);
+                    }
+                };
+        
+            } catch (error) {
+                console.log('Error:', error);
+            }
+    
+        }
 
 
-            
-        });
+        async function getCompanyName($id_comp){
+            try {
+                let url = "http://localhost:3000/api/companies/" + $id_comp;
+               
+                var requestOptions = {
+                    method: 'GET',
+                    redirect: 'follow'
+                };
+        
+                let response = await fetch(url, requestOptions);
+                let json = await response.json();
+                let name = json.name;
+                return name;
 
-        } catch (error) {
-        console.log('Error:', error);
-    }
-    }
+        }catch (error) {
+                console.log('Error:', error);
+            }
+        }
 
-    fetchContacts();
+        async function deleteContact($id){
+
+            try {
+                let url = "http://localhost:3000/api/contacts/" + $id;
+               
+                var requestOptions = {
+                method: 'DELETE',
+                redirect: 'follow'
+                };
+
+        
+                let response = await fetch(url, requestOptions);
+                window.location.href = "contactos.html";
+
+        }catch (error) {
+                console.log('Error:', error);
+            }
+        }
+
+
+        fetchContacts();
     </script>
 </body>
 </html>
